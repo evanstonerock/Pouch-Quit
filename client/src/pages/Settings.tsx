@@ -31,6 +31,8 @@ export default function Settings() {
       baselinePouchesPerDay: 8,
       pouchesPerCan: 15,
       costPerCan: "6.00",
+      // Keep these in the payload for backend compatibility,
+      // just hide them from the UI.
       wakeHourStart: 8,
       wakeHourEnd: 22,
     },
@@ -43,6 +45,7 @@ export default function Settings() {
         baselinePouchesPerDay: settings.baselinePouchesPerDay,
         pouchesPerCan: settings.pouchesPerCan,
         costPerCan: String(settings.costPerCan),
+        // Keep these synced even though hidden
         wakeHourStart: settings.wakeHourStart,
         wakeHourEnd: settings.wakeHourEnd,
       });
@@ -50,7 +53,12 @@ export default function Settings() {
   }, [settings, form]);
 
   const onSubmit = (data: InsertAppSettings) => {
-    updateSettings(data);
+    // Safety: ensure hidden fields always exist
+    updateSettings({
+      ...data,
+      wakeHourStart: Number.isFinite(data.wakeHourStart) ? data.wakeHourStart : 8,
+      wakeHourEnd: Number.isFinite(data.wakeHourEnd) ? data.wakeHourEnd : 22,
+    });
   };
 
   if (isLoading) return <div className="p-8 text-center">Loading settings...</div>;
@@ -69,10 +77,9 @@ export default function Settings() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          
           <div className="glass-panel p-6 rounded-2xl space-y-6">
             <h2 className="text-lg font-semibold text-white/90">Goals & Limits</h2>
-            
+
             <FormField
               control={form.control}
               name="baselinePouchesPerDay"
@@ -83,11 +90,11 @@ export default function Settings() {
                     <span className="text-xl font-bold font-display text-primary">{field.value}</span>
                   </div>
                   <FormControl>
-                    <Slider 
-                      min={1} 
-                      max={30} 
-                      step={1} 
-                      value={[field.value]} 
+                    <Slider
+                      min={1}
+                      max={30}
+                      step={1}
+                      value={[field.value]}
                       onValueChange={(val) => field.onChange(val[0])}
                       className="py-4"
                     />
@@ -97,37 +104,26 @@ export default function Settings() {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="wakeHourStart"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Wake Hour (24h)</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} className="bg-background/50" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="wakeHourEnd"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sleep Hour (24h)</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} className="bg-background/50" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Hidden fields kept for backend compatibility */}
+            <FormField
+              control={form.control}
+              name="wakeHourStart"
+              render={({ field }) => (
+                <input type="hidden" value={field.value} readOnly />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="wakeHourEnd"
+              render={({ field }) => (
+                <input type="hidden" value={field.value} readOnly />
+              )}
+            />
           </div>
 
           <div className="glass-panel p-6 rounded-2xl space-y-6">
             <h2 className="text-lg font-semibold text-white/90">Costs</h2>
-             <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="costPerCan"
@@ -148,7 +144,12 @@ export default function Settings() {
                   <FormItem>
                     <FormLabel>Pouches per Can</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} className="bg-background/50" />
+                      <Input
+                        type="number"
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        className="bg-background/50"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -157,8 +158,8 @@ export default function Settings() {
             </div>
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full h-12 text-lg font-semibold shadow-lg shadow-primary/20"
             disabled={isSaving}
           >
@@ -177,10 +178,13 @@ export default function Settings() {
           <AlertOctagon className="w-5 h-5" />
           Danger Zone
         </h3>
-        
+
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" className="w-full border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive">
+            <Button
+              variant="outline"
+              className="w-full border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
               Reset All Data
             </Button>
           </AlertDialogTrigger>
@@ -193,7 +197,10 @@ export default function Settings() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => resetSettings()} className="bg-destructive hover:bg-destructive/90 text-white">
+              <AlertDialogAction
+                onClick={() => resetSettings()}
+                className="bg-destructive hover:bg-destructive/90 text-white"
+              >
                 {isResetting ? "Resetting..." : "Yes, Delete Everything"}
               </AlertDialogAction>
             </AlertDialogFooter>
