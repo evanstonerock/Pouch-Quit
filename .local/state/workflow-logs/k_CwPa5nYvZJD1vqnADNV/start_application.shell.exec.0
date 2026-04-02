@@ -1,0 +1,9 @@
+[1G[0K⠙[1G[0K
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0K⠙[1G[0K3:46:49 AM [express] serving on port 5000
+3:46:54 AM [express] GET /api/settings 200 in 29ms :: {"id":1,"baselinePouchesPerDay":8,"costPerCan":"6.00","pouchesPerCan":15,"wakeHourStart":8,"wakeHourEnd":22}
+3:46:54 AM [express] GET /api/logs 200 in 23ms :: []
+3:49:56 AM [express] GET /api/settings 304 in 11ms :: {"id":1,"baselinePouchesPerDay":8,"costPerCan":"6.00","pouchesPerCan":15,"wakeHourStart":8,"wakeHourEnd":22}
+3:49:56 AM [express] GET /api/logs 304 in 11ms :: []
